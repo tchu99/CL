@@ -9,6 +9,8 @@ public class FastCollinearPoints {
     private Point[] points;
     private int numberOfSegment;
     private Point toCompare;
+    private LineSegment[] res;
+    int[] allValidPair;
 
     public FastCollinearPoints(Point[] points) {
         this.points = points;
@@ -39,40 +41,68 @@ public class FastCollinearPoints {
     }
 
     public LineSegment[] segments() {
-        LineSegment[] res = new LineSegment[points.length];
-
-        Point[] copiedArr = new Point[points.length];
-        for (int i = 0; i < points.length; i++) {
-            copiedArr[i] = points[i];
-        }
+        res = new LineSegment[points.length];
+        allValidPair = new int[2];
+        allValidPair[0] = 0;
+        allValidPair[1] = 0;
+        Point[] copiedArr = Arrays.copyOfRange(points, 0, points.length);
         for (Point p : copiedArr) {
             toCompare = p;
             Arrays.sort(points, p.slopeOrder());
 
-            int i = 2;
-            int index = 0;
-            Point[] collinearPoints = new Point[points.length];
-            collinearPoints[index++] = points[1];
+            int i = 0, j = 0;
 
-            double slope = toCompare.slopeTo(collinearPoints[0]);
+            while (j < points.length) {
 
-            while (i < points.length) {
-                double currentSlope = toCompare.slopeTo(points[i]);
-                if (currentSlope != slope) {
-                    if (index >= 3) {
-                        res[numberOfSegment++] = getSegment(collinearPoints);
-                        collinearPoints = new Point[points.length];
+                double comparision = toCompare.slopeOrder().compare(points[i], points[j]);
+                if (comparision == 0) {
+                    if (j - i + 1 >= 3) {
+                        addSegment(i, j);
                     }
-                    index = 0;
-                    slope = currentSlope;
+                    j++;
+
+                } else {
+                    i = j;
                 }
-                collinearPoints[index++] = points[i];
-                i++;
             }
 
         }
 
         return clearRepetition(res);
+    }
+
+    private void addSegment(int i, int j) {
+        
+        Point[] collinearPoints = Arrays.copyOfRange(points, i, j + 1);
+        res[numberOfSegment++] = getSegment(collinearPoints);
+        if (allValidPair[0] == 0 && allValidPair[1] == 0){
+            allValidPair[0] = i;
+            allValidPair[1] = j;
+            return;
+        }
+        if (allValidPair[0] == i && allValidPair[1]+1 == j){
+            int deletedId = numberOfSegment-2;
+            res[deletedId] = null;
+            allValidPair[1] = j;
+        }
+        
+    }
+
+    private LineSegment getSegment(Point[] collinearPoints) {
+
+        Point minPoint = toCompare;
+        Point maxPoint = toCompare;
+        for (Point p : collinearPoints) {
+            
+            if (p.compareTo(minPoint) < 0) {
+                minPoint = p;
+            }
+            if (p.compareTo(maxPoint) > 0) {
+                maxPoint = p;
+            }
+        }
+        return new LineSegment(minPoint, maxPoint);
+
     }
 
     private LineSegment[] clearRepetition(LineSegment[] res) {
@@ -101,38 +131,18 @@ public class FastCollinearPoints {
         return Arrays.copyOfRange(result, 0, numberOfSegment);
     }
 
-    private LineSegment getSegment(Point[] collinearPoints) {
-
-        Point minPoint = toCompare;
-        Point maxPoint = toCompare;
-        for (Point p : collinearPoints) {
-            if (p == null){
-                continue;
-            }
-            if (p.compareTo(minPoint) < 0) {
-                minPoint = p;
-            }
-            if (p.compareTo(maxPoint) > 0) {
-                maxPoint = p;
-            }
-        }
-        return new LineSegment(minPoint, maxPoint);
-
-    }
-
-    
-
     public static void main(String[] args) {
-        Point a = new Point(2, 3);
-        Point b = new Point(3, 3);
-        Point c = new Point(5, 3);
-        Point d = new Point(1, 3);
-        Point e = new Point(1, 4);
-        Point f = new Point(2, 2);
-        Point g = new Point(2, 5);
-        Point h = new Point(4, 4);
-        Point i = new Point(5, 5);
-        Point[] points = {a, b, c, d, e, f, g, h, i};
+        Point a = new Point(10, 3);
+        Point b = new Point(10, 4);
+        Point c = new Point(0, 1);
+        Point d = new Point(2, 7);
+        Point e = new Point(3, 3);
+        Point f = new Point(2, 3);
+        Point g = new Point(10, 0);
+        Point h = new Point(10, 9);
+        Point i = new Point(3, 7);
+        Point k = new Point(0, 3);
+        Point[] points = {a, b, c, d, e, f, g, h, i, k};
 
         // draw the points
         StdDraw.enableDoubleBuffering();

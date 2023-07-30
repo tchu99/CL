@@ -127,11 +127,11 @@ public class Point implements Comparable<Point> {
             double toP1 = p0.slopeTo(p1);
             double toP2 = p0.slopeTo(p2);
             double res = 0;
-            if (toP1 == toP2){
+            if (toP1 == toP2) {
                 res = 0;
+            } else {
+                res = toP1 - toP2;
             }
-            else{
-                res = toP1 - toP2;}
             if (res < 0) {
                 return -1;
             } else if (res == 0) {
@@ -158,17 +158,10 @@ public class Point implements Comparable<Point> {
     /**
      * Unit tests the Point data type.
      */
-//    public static void main(String[] args) {
-//        Point a = new Point(2, 6);
-//        Point b = new Point(2, 6);
-//        Point c = new Point(2, 7);
-//        System.out.println(a.compareTo(b));
-//        
-//       
-//        
-//        
-//        
-//        
-//
-//    }
+    public static void main(String[] args) {
+        double a = new Point(10, 3).slopeTo(new Point(10,4));
+        double b = new Point(10, 3).slopeTo(new Point(10,2));
+        System.out.println(a==b);
+
+    }
 }
